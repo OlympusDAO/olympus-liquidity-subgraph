@@ -26,9 +26,9 @@ export function handleSwap(event: Swap): void {
   log.debug("Swap {} usd amount {}", [event.transaction.hash.toHexString(), totalSwap.toString()])
 
   if(ownedLiquidity.gt(BigDecimal.fromString("0"))){
-    dailyVolume.protocolOwnedLiquidity = ownedLiquidity.div(totalLiquidity).times(BigDecimal.fromString("100"))
+    dailyVolume.protocolOwnedLiquidity = ownedLiquidity.div(totalLiquidity)
   }
-  let polFee = lpFee.times(dailyVolume.protocolOwnedLiquidity).div(BigDecimal.fromString("100"))
+  let polFee = lpFee.times(dailyVolume.protocolOwnedLiquidity)
   dailyVolume.feesEarned = dailyVolume.feesEarned.plus(polFee)
   dailyVolume.feesTotal = dailyVolume.feesTotal.plus(lpFee)
   dailyVolume.volume = dailyVolume.volume.plus(totalSwap)
