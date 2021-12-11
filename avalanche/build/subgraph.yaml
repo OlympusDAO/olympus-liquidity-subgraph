@@ -1,0 +1,73 @@
+specVersion: 0.0.2
+schema:
+  file: schema.graphql
+dataSources:
+  - kind: ethereum/contract
+    name: UniswapV2Factory
+    network: avalanche
+    source:
+      address: "0x9ad6c38be94206ca50bb0d90783181662f0cfa10"
+      abi: UniswapV2Factory
+      startBlock: 7388809
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      entities:
+        - PairCreated
+      abis:
+        - name: UniswapV2Pair
+          file: UniswapV2Factory/abis/UniswapV2Pair.json
+        - name: UniswapV3Pair
+          file: UniswapV2Factory/abis/UniswapV3Pair.json
+        - name: UniswapV2Factory
+          file: UniswapV2Factory/abis/UniswapV2Factory.json
+        - name: ERC20
+          file: UniswapV2Factory/abis/ERC20.json
+      eventHandlers:
+        - event: PairCreated(indexed address,indexed address,address,uint256)
+          handler: handlePairCreated
+      file: UniswapV2Factory/UniswapV2Factory.wasm
+templates:
+  - name: LPPairV2
+    kind: ethereum/contract
+    network: avalanche
+    source:
+      abi: UniswapV2Pair
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      entities:
+        - Swap
+      file: templates/LPPairV2/LPPairV2.wasm
+      abis:
+        - name: UniswapV2Pair
+          file: LPPairV2/abis/UniswapV2Pair.json
+        - name: ERC20
+          file: LPPairV2/abis/ERC20.json
+      eventHandlers:
+        - event: Swap(indexed address,uint256,uint256,uint256,uint256,indexed address)
+          handler: handleSwap
+  - name: LPPairV3
+    kind: ethereum/contract
+    network: avalanche
+    source:
+      abi: UniswapV3Pair
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      entities:
+        - Swap
+      file: templates/LPPairV3/LPPairV3.wasm
+      abis:
+        - name: UniswapV3Pair
+          file: LPPairV3/abis/UniswapV3Pair.json
+        - name: UniswapV2Pair
+          file: LPPairV3/abis/UniswapV2Pair.json
+        - name: ERC20
+          file: LPPairV3/abis/ERC20.json
+      eventHandlers:
+        - event: Swap(indexed address,indexed address,int256,int256,uint160,uint128,int24)
+          handler: handleSwap

@@ -1,0 +1,73 @@
+specVersion: 0.0.2
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum/contract
+    name: UniswapV2Factory
+    network: avalanche
+    source:
+      address: "0x9ad6c38be94206ca50bb0d90783181662f0cfa10"
+      abi: UniswapV2Factory
+      startBlock: 7388809
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      entities:
+        - PairCreated
+      abis:
+        - name: UniswapV2Pair
+          file: ./abis/UniswapV2Pair.json
+        - name: UniswapV3Pair
+          file: ./abis/UniswapV3Pair.json
+        - name: UniswapV2Factory
+          file: ./abis/UniswapV2Factory.json
+        - name: ERC20
+          file: ./abis/ERC20.json
+      eventHandlers:
+        - event: PairCreated(indexed address,indexed address,address,uint256)
+          handler: handlePairCreated
+      file: ./src/UniswapV2Factory.ts
+templates:
+  - name: LPPairV2
+    kind: ethereum/contract
+    network: avalanche
+    source:
+      abi: UniswapV2Pair
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      entities:
+        - Swap
+      file: ./src/LPPairV2.ts
+      abis:
+        - name: UniswapV2Pair
+          file: ./abis/UniswapV2Pair.json
+        - name: ERC20
+          file: ./abis/ERC20.json
+      eventHandlers:
+        - event: Swap(indexed address,uint256,uint256,uint256,uint256,indexed address)
+          handler: handleSwap
+  - name: LPPairV3
+    kind: ethereum/contract
+    network: avalanche
+    source:
+      abi: UniswapV3Pair
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      entities:
+        - Swap
+      file: ./src/LPPairV3.ts
+      abis:
+        - name: UniswapV3Pair
+          file: ./abis/UniswapV3Pair.json
+        - name: UniswapV2Pair
+          file: ./abis/UniswapV2Pair.json
+        - name: ERC20
+          file: ./abis/ERC20.json
+      eventHandlers:
+        - event: Swap(indexed address,indexed address,int256,int256,uint160,uint128,int24)
+          handler: handleSwap
