@@ -11,3 +11,8 @@ Functionality:
 ## Development
 
 Modify `subgraph.yaml` and `src/utils/Constants.ts` to adapt to the contracts of each chain.
+
+
+## URLs
+- [Ethereum](https://thegraph.com/hosted-service/subgraph/drondin/olympus-liquidity-ethereum)
+- [Avalanche](https://thegraph.com/hosted-service/subgraph/drondin/olympus-liquidity-avalanche)
