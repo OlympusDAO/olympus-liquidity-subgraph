@@ -5,6 +5,7 @@ Subgraph to discover and gather data for Olympus liquidity, intended to be deplo
 Functionality:
 - Autodiscover liquidity pools via Factory
 - Calculate LP Pair Volume
+- Calculate LP Pair Liquidity
 - Calculate Fees earned by Olympus Treasury
 
 
@@ -16,3 +17,5 @@ Modify `subgraph.yaml` and `src/utils/Constants.ts` to adapt to the contracts of
 ## URLs
 - [Ethereum](https://thegraph.com/hosted-service/subgraph/drondin/olympus-liquidity-ethereum)
 - [Avalanche](https://thegraph.com/hosted-service/subgraph/drondin/olympus-liquidity-avalanche)
+
+//TODO https://snowtrace.io/address/0xe65c29f1c40b52cf3a601a60df6ad37c59af1261#readContract
