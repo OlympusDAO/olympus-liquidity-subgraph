@@ -1,7 +1,7 @@
 import { BigInt, BigDecimal, log, Address } from "@graphprotocol/graph-ts"
 import { Swap, UniswapV2Pair } from "../generated/templates/LPPairV2/UniswapV2Pair"
 import { loadOrCreateDailyVolume } from "./utils/DailyVolume"
-import { loadLPPair } from "./utils/LPPair"
+import { loadLPPair, lpUSDReserves } from "./utils/LPPair"
 import { toDecimal } from "./utils/Decimals"
 import { getUSDValue } from "./utils/Price"
 import { TREASURY_ADDRESS, TREASURY_ADDRESS_V2 } from "./utils/Constants"
@@ -10,6 +10,9 @@ import { TREASURY_ADDRESS, TREASURY_ADDRESS_V2 } from "./utils/Constants"
 export function handleSwap(event: Swap): void {
   //Retrieve LP from database
   let lppair = loadLPPair(event.address.toHexString())
+  lppair.liquidity = lpUSDReserves(lppair.id)
+  lppair.save()
+  
   //Create dailyVolume object to store info
   let dailyVolume = loadOrCreateDailyVolume(event.block.timestamp, lppair.id)
 

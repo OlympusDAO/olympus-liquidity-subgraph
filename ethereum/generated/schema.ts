@@ -104,6 +104,23 @@ export class lpPair extends Entity {
   set version(value: string) {
     this.set("version", Value.fromString(value));
   }
+
+  get liquidity(): BigDecimal | null {
+    let value = this.get("liquidity");
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigDecimal();
+    }
+  }
+
+  set liquidity(value: BigDecimal | null) {
+    if (value === null) {
+      this.unset("liquidity");
+    } else {
+      this.set("liquidity", Value.fromBigDecimal(value as BigDecimal));
+    }
+  }
 }
 
 export class dailyVolume extends Entity {

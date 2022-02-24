@@ -96,6 +96,8 @@ templates:
       abis:
         - name: UniswapV2Pair
           file: ./abis/UniswapV2Pair.json
+        - name: UniswapV3Pair
+          file: ./abis/UniswapV3Pair.json
         - name: ERC20
           file: ./abis/ERC20.json
       eventHandlers:
