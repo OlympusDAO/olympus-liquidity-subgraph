@@ -7,7 +7,6 @@ type lpPair @entity {
   token1Decimal: BigInt!
   fee: BigDecimal!
   version: String!
-  liquidity: BigDecimal
 }
 
 type dailyVolume @entity {
@@ -19,4 +18,11 @@ type dailyVolume @entity {
   protocolOwnedLiquidity: BigDecimal!
   feesEarned: BigDecimal!
   feesTotal: BigDecimal!
+}
+
+type dailyLiquidity @entity {
+  id: ID!
+  timestamp: String!
+  liquidity: BigDecimal!
+  lp: String!
 }

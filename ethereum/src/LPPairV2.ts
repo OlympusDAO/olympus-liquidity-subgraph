@@ -5,14 +5,16 @@ import { loadLPPair, lpUSDReserves } from "./utils/LPPair"
 import { toDecimal } from "./utils/Decimals"
 import { getUSDValue } from "./utils/Price"
 import { TREASURY_ADDRESS, TREASURY_ADDRESS_V2 } from "./utils/Constants"
+import { loadOrCreateDailyLiquidity } from "./utils/Liquidity"
 
 //Every time there is a swap in the LP we do the following calculations
 export function handleSwap(event: Swap): void {
   //Retrieve LP from database
   let lppair = loadLPPair(event.address.toHexString())
-  lppair.liquidity = lpUSDReserves(lppair.id)
-  lppair.save()
-  
+
+  let dailyLiquidity = loadOrCreateDailyLiquidity(event.block.timestamp, lppair.id, lpUSDReserves(lppair.id))
+  dailyLiquidity.save()
+
   //Create dailyVolume object to store info
   let dailyVolume = loadOrCreateDailyVolume(event.block.timestamp, lppair.id)
 

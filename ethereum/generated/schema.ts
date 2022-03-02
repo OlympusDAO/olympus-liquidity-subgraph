@@ -104,23 +104,6 @@ export class lpPair extends Entity {
   set version(value: string) {
     this.set("version", Value.fromString(value));
   }
-
-  get liquidity(): BigDecimal | null {
-    let value = this.get("liquidity");
-    if (value === null || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toBigDecimal();
-    }
-  }
-
-  set liquidity(value: BigDecimal | null) {
-    if (value === null) {
-      this.unset("liquidity");
-    } else {
-      this.set("liquidity", Value.fromBigDecimal(value as BigDecimal));
-    }
-  }
 }
 
 export class dailyVolume extends Entity {
@@ -214,5 +197,63 @@ export class dailyVolume extends Entity {
 
   set feesTotal(value: BigDecimal) {
     this.set("feesTotal", Value.fromBigDecimal(value));
+  }
+}
+
+export class dailyLiquidity extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id !== null, "Cannot save dailyLiquidity entity without an ID");
+    assert(
+      id.kind == ValueKind.STRING,
+      "Cannot save dailyLiquidity entity with non-string ID. " +
+        'Considering using .toHex() to convert the "id" to a string.'
+    );
+    store.set("dailyLiquidity", id.toString(), this);
+  }
+
+  static load(id: string): dailyLiquidity | null {
+    return store.get("dailyLiquidity", id) as dailyLiquidity | null;
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get timestamp(): string {
+    let value = this.get("timestamp");
+    return value.toString();
+  }
+
+  set timestamp(value: string) {
+    this.set("timestamp", Value.fromString(value));
+  }
+
+  get liquidity(): BigDecimal {
+    let value = this.get("liquidity");
+    return value.toBigDecimal();
+  }
+
+  set liquidity(value: BigDecimal) {
+    this.set("liquidity", Value.fromBigDecimal(value));
+  }
+
+  get lp(): string {
+    let value = this.get("lp");
+    return value.toString();
+  }
+
+  set lp(value: string) {
+    this.set("lp", Value.fromString(value));
   }
 }
