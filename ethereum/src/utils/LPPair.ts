@@ -59,5 +59,5 @@ export function lpUSDReserves(address: string): BigDecimal{
         reserves = toDecimal(pair_reserves.value.value1,18).times(getgOHMUSDRate())
     }
 
-    return reserves
+    return reserves.times(BigDecimal.fromString("2"))
 }
