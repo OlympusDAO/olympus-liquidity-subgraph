@@ -4,7 +4,7 @@ import { loadOrCreateDailyVolume } from "./utils/DailyVolume"
 import { loadLPPair, lpUSDReserves } from "./utils/LPPair"
 import { toDecimal } from "./utils/Decimals"
 import { getUSDValue } from "./utils/Price"
-import { TREASURY_ADDRESS, TREASURY_ADDRESS_V2 } from "./utils/Constants"
+import { TREASURY_ADDRESS, TREASURY_ADDRESS_V2, TREASURY_ADDRESS_V3 } from "./utils/Constants"
 import { loadOrCreateDailyLiquidity } from "./utils/Liquidity"
 
 //Every time there is a swap in the LP we do the following calculations
@@ -31,6 +31,7 @@ export function handleSwap(event: Swap): void {
   let totalLiquidity = toDecimal(pairContract.totalSupply(), decimals)
   let ownedLiquidity = toDecimal(pairContract.balanceOf(Address.fromString(TREASURY_ADDRESS)), decimals)
   ownedLiquidity = ownedLiquidity.plus(toDecimal(pairContract.balanceOf(Address.fromString(TREASURY_ADDRESS_V2)), decimals))
+  ownedLiquidity = ownedLiquidity.plus(toDecimal(pairContract.balanceOf(Address.fromString(TREASURY_ADDRESS_V3)), decimals))
 
   //Calculate Fees
   let lpFee = totalSwap.times(lppair.fee).div(BigDecimal.fromString("100"))
