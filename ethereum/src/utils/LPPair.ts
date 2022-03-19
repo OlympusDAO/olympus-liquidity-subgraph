@@ -4,7 +4,8 @@ import { UniswapV2Pair } from "../../generated/templates/LPPairV2/UniswapV2Pair"
 import { ERC20 } from "../../generated/templates/LPPairV2/ERC20";
 import { CURRENT_GOHM, CURRENT_OHM, OHM_TOKENS } from "./Constants";
 import { toDecimal } from "./Decimals";
-import { getgOHMUSDRate, getOHMUSDRate } from "./Price";
+import { getgOHMUSDRate, getOHMUSDRate, getUSDValue } from "./Price";
+import { UniswapV3Pair } from "../../generated/templates/LPPairV3/UniswapV3Pair";
 
 export function createLPPair(address: string, verion: string, fee: BigDecimal): lpPair{
     //Load from database with LP address
@@ -39,25 +40,37 @@ export function loadLPPair(address: string): lpPair{
 
 export function lpUSDReserves(address: string): BigDecimal{
     let pair = UniswapV2Pair.bind(Address.fromString(address))
-    let reserves = BigDecimal.fromString("0")
     let pair_reserves = pair.try_getReserves()
 
     if(pair_reserves.reverted){
         return BigDecimal.fromString("0")
     }
 
-    if(OHM_TOKENS.includes(pair.token0().toHexString())){
-        reserves = toDecimal(pair_reserves.value.value0,9).times(getOHMUSDRate())
+    let reserves0 = getUSDValue(pair.token0().toHexString(), pair_reserves.value.value0)
+    let reserves1 = getUSDValue(pair.token1().toHexString(), pair_reserves.value.value1)
+
+    if(reserves0.gt(BigDecimal.fromString("0"))){
+        return reserves0.times(BigDecimal.fromString("2"))
     }
-    if(OHM_TOKENS.includes(pair.token1().toHexString())){
-        reserves = toDecimal(pair_reserves.value.value1,9).times(getOHMUSDRate())
-    }
-    else if(pair.token0().toHexString()==CURRENT_GOHM){
-        reserves = toDecimal(pair_reserves.value.value0,18).times(getgOHMUSDRate())
-    }
-    else if(pair.token1().toHexString()==CURRENT_GOHM){
-        reserves = toDecimal(pair_reserves.value.value1,18).times(getgOHMUSDRate())
+    if(reserves1.gt(BigDecimal.fromString("0"))){
+        return reserves1.times(BigDecimal.fromString("2"))
     }
 
-    return reserves.times(BigDecimal.fromString("2"))
+    return BigDecimal.fromString("0")
+}
+
+export function lpUSDReservesV3(address: string): BigDecimal{
+    let pair = UniswapV3Pair.bind(Address.fromString(address))
+
+    let token0 = ERC20.bind(pair.token0())
+    let token1 = ERC20.bind(pair.token1())
+
+    let tokenAmount0 = token0.balanceOf(pair._address)
+    let tokenAmount1 = token1.balanceOf(pair._address)
+
+    let reserves0 = getUSDValue(pair.token0().toHexString(), tokenAmount0)
+    let reserves1 = getUSDValue(pair.token1().toHexString(), tokenAmount1)
+
+
+    return reserves0.plus(reserves1)
 }

@@ -1,16 +1,21 @@
 import { Address, BigDecimal, BigInt, log } from "@graphprotocol/graph-ts"
 import { Swap, UniswapV3Pair } from "../generated/templates/LPPairV3/UniswapV3Pair"
 import { loadOrCreateDailyVolume } from "./utils/DailyVolume"
-import { loadLPPair } from "./utils/LPPair"
+import { loadLPPair, lpUSDReserves, lpUSDReservesV3 } from "./utils/LPPair"
 import { toDecimal } from "./utils/Decimals"
-import { getUSDValue } from "./utils/Price"
+import { getUSDValueSwap } from "./utils/Price"
 import { TREASURY_ADDRESS, TREASURY_ADDRESS_V2, TREASURY_ADDRESS_V3 } from "./utils/Constants"
+import { loadOrCreateDailyLiquidity } from "./utils/Liquidity"
 
 export function handleSwap(event: Swap): void {
   let lppair = loadLPPair(event.address.toHexString())
+  
   let dailyVolume = loadOrCreateDailyVolume(event.block.timestamp, lppair.id)
 
-  let totalSwap = getUSDValue(
+  let dailyLiquidity = loadOrCreateDailyLiquidity(event.block.timestamp, lppair.id, lpUSDReservesV3(lppair.id))
+  dailyLiquidity.save()
+
+  let totalSwap = getUSDValueSwap(
     lppair.token0, event.params.amount0.abs(),
     lppair.token1, event.params.amount1.abs()
   )

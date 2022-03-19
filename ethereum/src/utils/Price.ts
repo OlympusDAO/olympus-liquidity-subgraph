@@ -3,7 +3,7 @@ import { ERC20 } from '../../generated/templates/LPPairV2/ERC20';
 import { UniswapV2Pair } from '../../generated/templates/LPPairV2/UniswapV2Pair';
 import { UniswapV3Pair } from '../../generated/templates/LPPairV3/UniswapV3Pair';
 
-import { NATIVESTABLE_PAIR, NATIVE_TOKEN, NATIVE_TOKENS, OHMSTABLE_PAIR, OHM_TOKENS, STABLE_TOKENS, WRAPPED_OHMNATIVE_PAIR } from './Constants';
+import { NATIVESTABLE_PAIR, NATIVE_TOKENS, OHMSTABLE_PAIR, OHM_TOKENS, STABLE_TOKENS, WRAPPED_OHMNATIVE_PAIR, WRAPPED_OHM_TOKENS } from './Constants';
 import { toDecimal } from './Decimals'
 
 let BIG_DECIMAL_1E9 = BigDecimal.fromString('1e9')
@@ -77,39 +77,43 @@ export function getgOHMUSDRate(): BigDecimal {
     return ohmRate
 }
 
-export function getUSDValue(token0address: string, token0amount: BigInt, token1address: string, token1amount: BigInt): BigDecimal {
-    //Stable token in pair
-    if(STABLE_TOKENS.includes(token0address)){
-        let token = ERC20.bind(Address.fromString(token0address))
-        return toDecimal(token0amount, token.decimals())
+export function getUSDValueSwap(token0address: string, token0amount: BigInt, token1address: string, token1amount: BigInt): BigDecimal {
+    let token0Value = getUSDValue(token0address, token0amount)
+    if(token0Value.gt(BigDecimal.fromString("0"))){
+        return token0Value
     }
-    else if (STABLE_TOKENS.includes(token1address)){
-        let token = ERC20.bind(Address.fromString(token1address))
-        return toDecimal(token1amount, token.decimals())
+    let token1Value = getUSDValue(token1address, token1amount)
+    if(token1Value.gt(BigDecimal.fromString("0"))){
+        return token1Value
+    }
+    return BigDecimal.fromString("0")
+}
+
+export function getUSDValue(tokenAddress: string, tokenAmount: BigInt): BigDecimal {
+    //Stable token
+    if(STABLE_TOKENS.includes(tokenAddress)){
+        let token = ERC20.bind(Address.fromString(tokenAddress))
+        return toDecimal(tokenAmount, token.decimals())
     }
 
-    //Native token in pair
-    if(NATIVE_TOKENS.includes(token0address)){
-        let token = ERC20.bind(Address.fromString(token0address))
-        return toDecimal(token0amount, token.decimals()).times(getNativeUSDRate())
-    }
-    else if (NATIVE_TOKENS.includes(token1address)){
-        let token = ERC20.bind(Address.fromString(token1address))
-        return toDecimal(token1amount, token.decimals()).times(getNativeUSDRate())
+    //Native token
+    if(NATIVE_TOKENS.includes(tokenAddress)){
+        let token = ERC20.bind(Address.fromString(tokenAddress))
+        return toDecimal(tokenAmount, token.decimals()).times(getNativeUSDRate())
     }
 
-    //OHM token in pair
-    if(OHM_TOKENS.includes(token0address)){
-        let token = ERC20.bind(Address.fromString(token0address))
-        return toDecimal(token0amount, token.decimals()).times(getOHMUSDRate())
-    }
-    else if (OHM_TOKENS.includes(token1address)){
-        let token = ERC20.bind(Address.fromString(token1address))
-        return toDecimal(token1amount, token.decimals()).times(getOHMUSDRate())
+    //OHM token
+    if(OHM_TOKENS.includes(tokenAddress)){
+        let token = ERC20.bind(Address.fromString(tokenAddress))
+        return toDecimal(tokenAmount, token.decimals()).times(getOHMUSDRate())
     }
 
-    else {
-        log.debug("price not found for tokens {} - {}", [token0address, token1address])
-        return BigDecimal.fromString("0")
+    //gOHM token
+    if(WRAPPED_OHM_TOKENS.includes(tokenAddress)){
+        let token = ERC20.bind(Address.fromString(tokenAddress))
+        return toDecimal(tokenAmount, token.decimals()).times(getgOHMUSDRate())
     }
+
+    log.debug("price not found for tokens {}", [tokenAddress])
+    return BigDecimal.fromString("0")
 }

@@ -3,7 +3,7 @@ import { Swap, UniswapV2Pair } from "../generated/templates/LPPairV2/UniswapV2Pa
 import { loadOrCreateDailyVolume } from "./utils/DailyVolume"
 import { loadLPPair, lpUSDReserves } from "./utils/LPPair"
 import { toDecimal } from "./utils/Decimals"
-import { getUSDValue } from "./utils/Price"
+import { getUSDValueSwap } from "./utils/Price"
 import { TREASURY_ADDRESS, TREASURY_ADDRESS_V2, TREASURY_ADDRESS_V3 } from "./utils/Constants"
 import { loadOrCreateDailyLiquidity } from "./utils/Liquidity"
 
@@ -19,7 +19,7 @@ export function handleSwap(event: Swap): void {
   let dailyVolume = loadOrCreateDailyVolume(event.block.timestamp, lppair.id)
 
   //Calculate the swap USD value
-  let totalSwap = getUSDValue(
+  let totalSwap = getUSDValueSwap(
     lppair.token0, event.params.amount0In.plus(event.params.amount0Out),
     lppair.token1, event.params.amount1In.plus(event.params.amount1Out)
   )
